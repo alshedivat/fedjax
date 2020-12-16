@@ -19,6 +19,8 @@ from typing import Any, Iterable, Iterator, List, NamedTuple, Optional, Union
 from fedjax.core.typing import FederatedData
 import tensorflow as tf
 
+MEGABATCH_MULTIPLIER = 1
+
 
 def create_tf_dataset_for_clients(
     federated_data: FederatedData,
@@ -78,8 +80,9 @@ def preprocess_tf_dataset(dataset: tf.data.Dataset,
   if hparams.shuffle_buffer_size:
     dataset = dataset.shuffle(hparams.shuffle_buffer_size)
   dataset = (
-      dataset.batch(hparams.batch_size,
-                    drop_remainder=hparams.drop_remainder).prefetch(1))
+      dataset.batch(
+          hparams.batch_size * MEGABATCH_MULTIPLIER,
+          drop_remainder=hparams.drop_remainder).prefetch(1))
   return dataset.take(hparams.num_batches)
 
 

@@ -87,7 +87,7 @@ class FedAvg(core.FederatedAlgorithm):
   def run_round(self, state: FedAvgState, client_ids: List[str]) -> FedAvgState:
     """Runs one round of federated averaging."""
     # Train model per client.
-    client_states = core.train_multiple_clients(
+    client_states = core.train_multiple_clients_parallel(
         federated_data=self.federated_data,
         client_ids=client_ids,
         client_trainer=self._client_trainer,

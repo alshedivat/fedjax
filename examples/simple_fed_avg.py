@@ -90,7 +90,7 @@ class SimpleFedAvg(fedjax.FederatedAlgorithm):
                 client_ids: List[str]) -> SimpleFedAvgState:
     """Runs one round of federated averaging."""
     # Train model per client.
-    client_outputs = fedjax.train_multiple_clients(
+    client_outputs = fedjax.train_multiple_clients_parallel(
         federated_data=self.federated_data,
         client_ids=client_ids,
         client_trainer=self._client_trainer,

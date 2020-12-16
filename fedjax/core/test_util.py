@@ -79,6 +79,7 @@ def create_toy_data(num_clients: int, num_clusters: int, num_classes: int,
     client_id = str(i)
     client_data[client_id] = random_state.choice(
         num_classes, num_examples, p=distribution)
+    # num_classes, num_examples * (i + 1), p=distribution)
 
   for client_id, client_points in client_data.items():
     client_data[client_id] = collections.OrderedDict(

@@ -13,14 +13,39 @@
 # limitations under the License.
 """Tests for fedjax.core.client_trainer."""
 
+import os
+
 from fedjax.core import client_trainer
 from fedjax.core import dataset_util
 from fedjax.core import evaluation_util
 from fedjax.core import optimizer
 from fedjax.core import test_util
+from jax.lib import xla_bridge
 import jax
 import jax.numpy as jnp
 import tensorflow as tf
+
+
+# Run all tests with 8 CPU devices.
+def setUpModule():
+  global prev_xla_flags
+  prev_xla_flags = os.getenv("XLA_FLAGS")
+  flags_str = prev_xla_flags or ""
+  # Don't override user-specified device count, or other XLA flags.
+  if "xla_force_host_platform_device_count" not in flags_str:
+    os.environ["XLA_FLAGS"] = (
+        flags_str + " --xla_force_host_platform_device_count=8")
+  # Clear any cached backends so new CPU backend will pick up the env var.
+  xla_bridge.get_backend.cache_clear()
+
+
+# Reset to previous configuration in case other test modules will be run.
+def tearDownModule():
+  if prev_xla_flags is None:
+    del os.environ["XLA_FLAGS"]
+  else:
+    os.environ["XLA_FLAGS"] = prev_xla_flags
+  xla_bridge.get_backend.cache_clear()
 
 
 class DefaultClientTrainerTest(tf.test.TestCase):
@@ -52,7 +77,7 @@ class DefaultClientTrainerTest(tf.test.TestCase):
     metrics = self._federated_algorithm.model.evaluate(state.params, batch)
 
     self.assertEqual(state.weight, 10)
-    self.assertLess(metrics['loss'], prev_metrics['loss'])
+    self.assertLess(metrics["loss"], prev_metrics["loss"])
 
   def test_loop(self):
     state = self.init_state()
@@ -66,7 +91,7 @@ class DefaultClientTrainerTest(tf.test.TestCase):
         self._client_dataset, self._federated_algorithm.model, state.params)
 
     self.assertEqual(state.weight, 20)
-    self.assertLess(metrics['loss'], prev_metrics['loss'])
+    self.assertLess(metrics["loss"], prev_metrics["loss"])
 
   def test_train_single_client_tf_dataset(self):
     state = client_trainer.train_single_client(
@@ -181,5 +206,6 @@ class ControlVariateTrainerTest(tf.test.TestCase):
                         init_state.control_variate)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+  setUpModule()
   tf.test.main()

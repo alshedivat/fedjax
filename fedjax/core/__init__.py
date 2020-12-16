@@ -23,6 +23,7 @@ from fedjax.core.client_trainer import ControlVariateTrainerState
 from fedjax.core.client_trainer import DefaultClientTrainer
 from fedjax.core.client_trainer import DefaultClientTrainerState
 from fedjax.core.client_trainer import train_multiple_clients
+from fedjax.core.client_trainer import train_multiple_clients_parallel
 from fedjax.core.client_trainer import train_single_client
 # Dataset utilities.
 from fedjax.core.dataset_util import ClientDataHParams
